@@ -1,0 +1,210 @@
+<html>
+
+<head>
+    <script defer src="./CS405HW.js"></script>
+    <title>CS 405 Homework</title>
+    <link rel="stylesheet" type="text/css" href="CS405HW.css">
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+    <input type="file" id="upload" />
+    <!--<pre id="output"></pre> -->
+
+    <div>
+        <h2>Total suicide number per year between 2018-2022 in Ankara</h2>
+    </div>
+
+    <svg version="1.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="graph" aria-labelledby="title" role="img">
+        <title id="title">A bar chart indicates the suicide numbers.</title>
+        <g class="grid x-grid" id="xGrid">
+            <line x1="90" x2="90" y1="5" y2="371"></line>
+        </g>
+        <g class="grid y-grid" id="yGrid">
+            <line x1="90" x2="705" y1="370" y2="370"></line>
+        </g>
+            <g class="labels x-labels">
+            <text x="400" y="440" class="label-title">Year</text>
+        </g>
+        <g class="labels y-labels">
+            
+            <text x="50" y="200" class="label-title"> Death Number</text>
+        </g>
+      </svg>
+
+    <script>
+
+        function ClearData(data) {
+            return data.map(e => {
+                return {
+                    city: e["İkamet ili ve cinsiyete göre intiharlar, 2018-2022"],
+                    stats: [
+                        {
+                            year: 2018,
+                            total: e["__EMPTY"],
+                            male: e["__EMPTY_1"],
+                            female: e["__EMPTY_2"]
+                        },
+                        {
+                            year: 2019,
+                            total: e["__EMPTY_4"],
+                            male: e["__EMPTY_5"],
+                            female: e["__EMPTY_6"]
+
+                        },
+                        {
+                            year: 2020,
+                            total: e["__EMPTY_8"],
+                            male: e["__EMPTY_9"],
+                            female: e["__EMPTY_10"]
+
+                        },
+                        {
+                            year: 2021,
+                            total: e["__EMPTY_12"],
+                            male: e["__EMPTY_13"],
+                            female: e["__EMPTY_14"]
+                        },
+                        {
+                            year: 2022,
+                            total: e["__EMPTY_16"],
+                            male: e["__EMPTY_17"],
+                            female: e["__EMPTY_18"]
+
+                        },
+
+                    ]
+                }
+            }
+            )
+        }
+        
+        function graphValue(data) {
+            const xlabel = document.querySelector('.labels.x-labels');
+            const ylabel = document.querySelector('.labels.y-labels');
+
+            console.log(ylabel);
+            console.log(xlabel);
+
+            data.forEach((element, index) => {
+                let i = 0;
+                if (element.city == "Ankara") {
+                    console.log(element);
+                    for (let i = 0; i < element.stats.length; i++) {
+                        console.log(element.stats[i].year);
+
+                        let itemx = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                        itemx.textContent = element.stats[i].year;
+                        itemx.setAttribute('x', 120 + (i * 130));
+                        itemx.setAttribute('y', 390);
+                        
+                        xlabel.appendChild(itemx);
+                        let itemr = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+                        
+                        let barHeight = element.stats[i].total;
+
+                        itemr.setAttribute('x', 120 + (i * 130));
+                        itemr.setAttribute('y', 370 - barHeight);
+                        itemr.setAttribute('width', 40);
+                        itemr.setAttribute('height', barHeight);
+
+                        if (i == 0) {
+                            itemr.setAttribute('fill', 'DarkCyan');
+                        }
+                        else if (i == 1){
+                            itemr.setAttribute('fill', 'CadetBlue');
+                        }
+                        else if (i == 2){
+                            itemr.setAttribute('fill', 'CornflowerBlue');
+                        }
+                        else if (i ==3){
+                            itemr.setAttribute('fill', 'Coral');
+                        }
+                        else if (i == 4){
+                            itemr.setAttribute('fill', 'Chocolate');
+                        }
+                        else if (i == 5){
+                            itemr.setAttribute('fill', 'DarkSlateGray');
+                        }
+                        
+                        xlabel.appendChild(itemr);
+                        
+                        let itemy = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                        itemy.textContent = element.stats[i].total;
+                        itemy.setAttribute('x', 120 + (i * 130));
+                        itemy.setAttribute('y', 370 - barHeight - 5); // Position it 5 units above the bar
+                        
+                        ylabel.appendChild(itemy);
+                    }
+
+
+                    let item = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                    xlabel.appendChild(item);
+                }
+                
+            });
+        }
+
+
+
+        function representData(data) {
+            for (let i = 0; i < data.length; i++) { 
+                if (data[i].city == "Ankara") {
+                    console.log(data[i]);
+                    //document.getElementById('output').textContent = JSON.stringify(data[i], undefined, 2);
+                }
+            }
+        }
+
+        const fileInput = document.getElementById('fileInput');
+        document.getElementById('upload').addEventListener('change', handleFile, false);
+
+        function handleFile(e) {
+        let files = e.target.files;
+        let f = files[0];
+
+        let reader = new FileReader();
+
+        reader.onload = function(e) {
+            let data = e.target.result;
+            let workbook = XLSX.read(data, {type: 'binary'});
+
+            
+            let firstSheetName = workbook.SheetNames[0];
+            let worksheet = workbook.Sheets[firstSheetName];
+
+            
+            let jsonData = XLSX.utils.sheet_to_json(worksheet);
+            //var parsed = JSON.parse(jsonData);
+            
+            console.log(jsonData);
+            let clearData = ClearData(jsonData);
+            console.log(clearData);
+            representData(clearData);
+            graphValue(clearData);
+            //document.getElementById('output').textContent = JSON.stringify(jsonData, undefined, 2);
+            //console.log(parsed)
+        };
+        reader.readAsBinaryString(f);
+    }
+
+    
+        
+        
+    </script>
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
